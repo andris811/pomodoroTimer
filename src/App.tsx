@@ -28,14 +28,14 @@ export default function App() {
   useEffect(() => {
     if (isRunning && intervalRef.current === null) {
       intervalRef.current = window.setInterval(() => {
-        setTimeLeft(prev => {
+        setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(intervalRef.current!);
             intervalRef.current = null;
             setIsRunning(false);
 
             if (mode === "pomodoro") {
-              setCompletedSessions(prev => {
+              setCompletedSessions((prev) => {
                 const next = prev + 1;
                 if (next % 4 === 0) {
                   setMode("long");
@@ -68,6 +68,17 @@ export default function App() {
     return `${m}:${sec}`;
   };
 
+  const getStageLabel = () => {
+    switch (mode) {
+      case "pomodoro":
+        return { text: "Focus Time", color: "text-white/90" };
+      case "short":
+        return { text: "Short Break", color: "text-green-200" };
+      case "long":
+        return { text: "Long Break", color: "text-blue-200" };
+    }
+  };
+
   const bgColor =
     mode === "pomodoro"
       ? "bg-[#BA4949]"
@@ -76,24 +87,35 @@ export default function App() {
       : "bg-[#397097]";
 
   return (
-    <div className={`${bgColor} text-white h-screen flex flex-col items-center justify-between p-8`}>
+    <div
+      className={`${bgColor} text-white h-screen flex flex-col items-center justify-between p-8`}
+    >
       {/* Top Tabs */}
       <div className="flex gap-4 mt-8">
-        {(["pomodoro", "short", "long"] as Mode[]).map(m => (
+        {(["pomodoro", "short", "long"] as Mode[]).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
             className={`px-4 py-2 rounded-full text-sm font-medium uppercase tracking-widest transition ${
-              mode === m ? "bg-white text-black" : "bg-transparent border border-white"
+              mode === m
+                ? "bg-white text-black"
+                : "bg-transparent border border-white"
             }`}
           >
-            {m === "pomodoro" ? "Pomodoro" : m === "short" ? "Short Break" : "Long Break"}
+            {m === "pomodoro"
+              ? "Pomodoro"
+              : m === "short"
+              ? "Short Break"
+              : "Long Break"}
           </button>
         ))}
       </div>
 
       {/* Timer */}
       <div className="text-9xl font-bold font-mono">{formatTime(timeLeft)}</div>
+      <div className={`text-xl font-medium mt-2 ${getStageLabel().color}`}>
+        {getStageLabel().text}
+      </div>
 
       {/* Session Tracker */}
       <div className="flex gap-2 mt-4">
