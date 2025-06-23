@@ -208,7 +208,7 @@ export default function App() {
               </div>
               <div className="flex gap-4">
                 <button
-                  className="bg-white text-black px-4 py-2 rounded cursor-pointer"
+                  className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition active:scale-95 active:shadow-inner"
                   onClick={() => {
                     if (!hasStartedRef.current)
                       startSession(
@@ -223,11 +223,13 @@ export default function App() {
                   Start Now
                 </button>
                 <button
-                  className="border border-white px-4 py-2 rounded cursor-pointer"
+                  className="border border-white text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-white hover:text-black transition active:scale-95 active:shadow-inner"
                   onClick={() => {
                     clearTimeout(autoStartTimeout.current!);
                     clearInterval(countdownInterval.current!);
                     setShowPrompt(false);
+                    setIsRunning(false); // Ensure timer doesn't resume
+                    setTimeLeft(MODES[mode]); // Reset timer to full length
                   }}
                 >
                   Cancel
@@ -236,60 +238,60 @@ export default function App() {
             </div>
           )}
 
-         {!showPrompt && (
-  <div className="flex gap-4 mt-6">
-    {!isRunning ? (
-      <>
-        <button
-          onClick={() => setIsRunning(true)}
-          className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition"
-        >
-          Start
-        </button>
-        {/* Invisible placeholder to preserve layout */}
-        <button
-          className="border border-transparent text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-default invisible"
-          aria-hidden="true"
-        >
-          Next
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          onClick={() => setIsRunning(false)}
-          className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition"
-        >
-          Pause
-        </button>
-        <button
-          onClick={() => {
-            clearInterval(intervalRef.current!);
-            intervalRef.current = null;
-            setIsRunning(false);
+          {!showPrompt && (
+            <div className="flex gap-4 mt-6">
+              {!isRunning ? (
+                <>
+                  <button
+                    onClick={() => setIsRunning(true)}
+                    className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition active:scale-95 active:shadow-inner"
+                  >
+                    Start
+                  </button>
+                  {/* Invisible placeholder to preserve layout */}
+                  <button
+                    className="border border-transparent text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-default invisible"
+                    aria-hidden="true"
+                  >
+                    Next
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setIsRunning(false)}
+                    className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition active:scale-95 active:shadow-inner"
+                  >
+                    Pause
+                  </button>
+                  <button
+                    onClick={() => {
+                      clearInterval(intervalRef.current!);
+                      intervalRef.current = null;
+                      setIsRunning(false);
 
-            let nextMode: Mode;
-            let nextSessions = completedSessions;
+                      let nextMode: Mode;
+                      let nextSessions = completedSessions;
 
-            if (mode === "pomodoro") {
-              nextSessions += 1;
-              setCompletedSessions(nextSessions);
-              nextMode = nextSessions % 4 === 0 ? "long" : "short";
-            } else {
-              nextMode = "pomodoro";
-              if (mode === "long") setCompletedSessions(0);
-            }
+                      if (mode === "pomodoro") {
+                        nextSessions += 1;
+                        setCompletedSessions(nextSessions);
+                        nextMode = nextSessions % 4 === 0 ? "long" : "short";
+                      } else {
+                        nextMode = "pomodoro";
+                        if (mode === "long") setCompletedSessions(0);
+                      }
 
-            startSession(nextMode);
-          }}
-          className="border border-white text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
-        >
-          Next
-        </button>
-      </>
-    )}
-  </div>
-)}
+                      startSession(nextMode);
+                    }}
+                    className="border border-white text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-white hover:text-black transition active:scale-95 active:shadow-inner"
+                  >
+                    Next
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
