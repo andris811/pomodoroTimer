@@ -14,7 +14,7 @@ type Mode = keyof typeof MODES;
 
 export default function App() {
   const [mode, setMode] = useState<Mode>("pomodoro");
-  const [timeLeft, setTimeLeft] = useState(MODES["pomodoro"]);
+  const [timeLeft, setTimeLeft] = useState<number>(MODES["pomodoro"]);
   const [isRunning, setIsRunning] = useState(false);
   const [completedSessions, setCompletedSessions] = useState(0);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -39,7 +39,7 @@ export default function App() {
   useEffect(() => {
     if (isRunning && intervalRef.current === null) {
       intervalRef.current = window.setInterval(() => {
-        setTimeLeft(prev => {
+        setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(intervalRef.current!);
             intervalRef.current = null;
@@ -66,7 +66,7 @@ export default function App() {
             clearTimeout(autoStartTimeout.current!);
 
             countdownInterval.current = window.setInterval(() => {
-              setCountdownToAutoStart(prev => {
+              setCountdownToAutoStart((prev) => {
                 if (prev <= 1) {
                   clearInterval(countdownInterval.current!);
                   countdownInterval.current = null;
@@ -106,12 +106,26 @@ export default function App() {
   // ✅ Reusable start session function
   const startSession = (nextMode: Mode) => {
     hasStartedRef.current = true;
+
+    // 🔄 Clear everything
+    clearInterval(intervalRef.current!);
+    intervalRef.current = null;
+
     clearInterval(countdownInterval.current!);
+    countdownInterval.current = null;
+
     clearTimeout(autoStartTimeout.current!);
+    autoStartTimeout.current = null;
+
+    // ✅ Start next session
     setShowPrompt(false);
     setMode(nextMode);
     setTimeLeft(MODES[nextMode]);
-    setIsRunning(true);
+
+    // Delay setIsRunning until after mode updates
+    setTimeout(() => {
+      setIsRunning(true);
+    }, 50);
   };
 
   const formatTime = (s: number) => {
@@ -139,38 +153,51 @@ export default function App() {
       : "bg-[#397097]";
 
   return (
-    <div className={`${bgColor} text-white h-screen flex flex-col items-center justify-between p-8`}>
+    <div
+      className={`${bgColor} text-white h-screen flex flex-col items-center justify-between p-8`}
+    >
       {/* Tabs */}
       <div className="flex gap-4 mt-8">
-        {(["pomodoro", "short", "long"] as Mode[]).map(m => (
+        {(["pomodoro", "short", "long"] as Mode[]).map((m) => (
           <button
             key={m}
             onClick={() => startSession(m)}
-            className={`px-4 py-2 rounded-full text-sm font-medium uppercase tracking-widest transition ${
-              mode === m ? "bg-white text-black" : "bg-transparent border border-white"
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium uppercase tracking-widest transition cursor-pointer
+  ${
+    mode === m
+      ? "bg-white text-black"
+      : "bg-transparent border border-white hover:bg-white hover:text-black"
+  }`}
           >
-            {m === "pomodoro" ? "Pomodoro" : m === "short" ? "Short Break" : "Long Break"}
+            {m === "pomodoro"
+              ? "Pomodoro"
+              : m === "short"
+              ? "Short Break"
+              : "Long Break"}
           </button>
         ))}
       </div>
 
       {/* Timer */}
       <div className="flex flex-col items-center">
-        <div className="text-9xl font-bold font-mono">{formatTime(timeLeft)}</div>
+        <div className="text-9xl font-bold font-mono">
+          {formatTime(timeLeft)}
+        </div>
         <div className={`text-xl font-medium mt-2 ${getStageLabel().color}`}>
           {getStageLabel().text}
         </div>
 
         {/* Progress */}
         <div className="flex gap-2 mt-4">
-          {Array.from({ length: Math.min(completedSessions, 4) }).map((_, i) => (
-            <CheckCircleIcon
-              key={i}
-              className="text-white w-6 h-6 opacity-0 animate-fade-in"
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
-          ))}
+          {Array.from({ length: Math.min(completedSessions, 4) }).map(
+            (_, i) => (
+              <CheckCircleIcon
+                key={i}
+                className="text-white w-6 h-6 opacity-0 animate-fade-in"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            )
+          )}
         </div>
         <div className="text-sm text-white/60 mt-1">
           Pomodoros completed: {completedSessions}
@@ -184,19 +211,22 @@ export default function App() {
             </div>
             <div className="flex gap-4">
               <button
-                className="bg-white text-black px-4 py-2 rounded"
+                className="bg-white text-black px-4 py-2 rounded cursor-pointer"
                 onClick={() => {
-                  if (!hasStartedRef.current) startSession(
-                    mode === "pomodoro"
-                      ? (completedSessions % 4 === 0 ? "long" : "short")
-                      : "pomodoro"
-                  );
+                  if (!hasStartedRef.current)
+                    startSession(
+                      mode === "pomodoro"
+                        ? completedSessions % 4 === 0
+                          ? "long"
+                          : "short"
+                        : "pomodoro"
+                    );
                 }}
               >
                 Start Now
               </button>
               <button
-                className="border border-white px-4 py-2 rounded"
+                className="border border-white px-4 py-2 rounded cursor-pointer"
                 onClick={() => {
                   clearTimeout(autoStartTimeout.current!);
                   clearInterval(countdownInterval.current!);
@@ -215,14 +245,14 @@ export default function App() {
         {!isRunning ? (
           <button
             onClick={() => setIsRunning(true)}
-            className="bg-white text-black px-6 py-3 rounded uppercase font-semibold tracking-wide"
+            className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
           >
             Start
           </button>
         ) : (
           <button
             onClick={() => setIsRunning(false)}
-            className="bg-white text-black px-6 py-3 rounded uppercase font-semibold tracking-wide"
+            className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
           >
             Pause
           </button>
@@ -234,7 +264,7 @@ export default function App() {
             clearInterval(intervalRef.current!);
             intervalRef.current = null;
           }}
-          className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide"
+          className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
         >
           Reset
         </button>
