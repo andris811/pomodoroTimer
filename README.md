@@ -1,54 +1,91 @@
-# React + TypeScript + Vite
+# Pomodoro Timer ⏱️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and stylish Pomodoro timer built with **React + TypeScript** and styled using **Tailwind CSS**.  
+This app helps you stay focused using the Pomodoro Technique, with a clean interface and subtle animations inspired by [pomofocus.io](https://pomofocus.io).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- 🎯 Pomodoro / Short Break / Long Break modes  
+- ✅ Tracks completed Pomodoros (resets after 4 sessions and a long break)  
+- ⏳ Auto-start next session after 20 seconds  
+- 🖱️ Manual “Start Now” / “Cancel” options  
+- ⏸️ Pause / Resume at any time  
+- ⏭️ Skip to next session if needed  
+- 🔄 Animated checkmarks to indicate progress  
+- 💡 Responsive design, hover and click feedback for buttons  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🧪 Testing Mode
+
+Timer durations are currently shortened for development:
+
+```ts
+const MODES = {
+  pomodoro: 10,
+  short: 5,
+  long: 15,
+};
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+To use the actual Pomodoro timings, change them to:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```ts
+const MODES = {
+  pomodoro: 25 * 60,
+  short: 5 * 60,
+  long: 15 * 60,
+};
 ```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/pomodoro-timer.git
+cd pomodoro-timer
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the dev server
+
+```bash
+npm run dev
+```
+
+### 4. Build for production
+
+```bash
+npm run build
+```
+
+---
+
+## 🛠 Tech Stack
+
+- React  
+- TypeScript  
+- Tailwind CSS  
+- Vite  
+
+---
+
+## 📸 Preview
+
+Coming soon...
+
+---
+
+## 📄 License
+
+This project is open-source and free to use under the [MIT License](LICENSE).
