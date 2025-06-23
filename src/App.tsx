@@ -25,7 +25,6 @@ export default function App() {
   const countdownInterval = useRef<number | null>(null);
   const hasStartedRef = useRef(false);
 
-  // Update timeLeft whenever mode changes
   useEffect(() => {
     if (!showPrompt) {
       setTimeLeft(MODES[mode]);
@@ -35,7 +34,6 @@ export default function App() {
     intervalRef.current = null;
   }, [mode]);
 
-  // Main countdown
   useEffect(() => {
     if (isRunning && intervalRef.current === null) {
       intervalRef.current = window.setInterval(() => {
@@ -54,14 +52,15 @@ export default function App() {
               nextMode = nextSessions % 4 === 0 ? "long" : "short";
             } else {
               nextMode = "pomodoro";
+              if (mode === "long") {
+                setCompletedSessions(0);
+              }
             }
 
-            // Show countdown prompt
             setShowPrompt(true);
             setCountdownToAutoStart(20);
             hasStartedRef.current = false;
 
-            // Clean existing intervals before setting new
             clearInterval(countdownInterval.current!);
             clearTimeout(autoStartTimeout.current!);
 
@@ -103,26 +102,19 @@ export default function App() {
     };
   }, []);
 
-  // ✅ Reusable start session function
   const startSession = (nextMode: Mode) => {
     hasStartedRef.current = true;
-
-    // 🔄 Clear everything
     clearInterval(intervalRef.current!);
     intervalRef.current = null;
-
     clearInterval(countdownInterval.current!);
     countdownInterval.current = null;
-
     clearTimeout(autoStartTimeout.current!);
     autoStartTimeout.current = null;
 
-    // ✅ Start next session
     setShowPrompt(false);
     setMode(nextMode);
     setTimeLeft(MODES[nextMode]);
 
-    // Delay setIsRunning until after mode updates
     setTimeout(() => {
       setIsRunning(true);
     }, 50);
@@ -154,7 +146,6 @@ export default function App() {
 
   return (
     <div className={`${bgColor} text-white h-screen flex flex-col`}>
-      {/* Tabs */}
       <div className="pt-8 flex justify-center">
         <div className="flex gap-4 mt-8">
           {(["pomodoro", "short", "long"] as Mode[]).map((m) => (
@@ -186,7 +177,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Timer */}
       <div className="flex-grow flex flex-col items-center justify-center">
         <div className="flex flex-col items-center">
           <div className="text-9xl font-bold font-mono">
@@ -196,7 +186,6 @@ export default function App() {
             {getStageLabel().text}
           </div>
 
-          {/* Progress */}
           <div className="flex gap-2 mt-4">
             {Array.from({ length: Math.min(completedSessions, 4) }).map(
               (_, i) => (
@@ -212,7 +201,6 @@ export default function App() {
             Pomodoros completed: {completedSessions}
           </div>
 
-          {/* Prompt */}
           {showPrompt && (
             <div className="mt-6 flex flex-col items-center gap-2">
               <div className="text-white text-lg font-medium">
@@ -247,53 +235,62 @@ export default function App() {
               </div>
             </div>
           )}
+
+         {!showPrompt && (
+  <div className="flex gap-4 mt-6">
+    {!isRunning ? (
+      <>
+        <button
+          onClick={() => setIsRunning(true)}
+          className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition"
+        >
+          Start
+        </button>
+        {/* Invisible placeholder to preserve layout */}
+        <button
+          className="border border-transparent text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-default invisible"
+          aria-hidden="true"
+        >
+          Next
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          onClick={() => setIsRunning(false)}
+          className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition"
+        >
+          Pause
+        </button>
+        <button
+          onClick={() => {
+            clearInterval(intervalRef.current!);
+            intervalRef.current = null;
+            setIsRunning(false);
+
+            let nextMode: Mode;
+            let nextSessions = completedSessions;
+
+            if (mode === "pomodoro") {
+              nextSessions += 1;
+              setCompletedSessions(nextSessions);
+              nextMode = nextSessions % 4 === 0 ? "long" : "short";
+            } else {
+              nextMode = "pomodoro";
+              if (mode === "long") setCompletedSessions(0);
+            }
+
+            startSession(nextMode);
+          }}
+          className="border border-white text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
+        >
+          Next
+        </button>
+      </>
+    )}
+  </div>
+)}
         </div>
-      </div>
-
-      {/* Controls */}
-      <div className="pb-8 flex justify-center">
-        {!showPrompt && (
-          <div className="flex gap-4 mb-8">
-            {!isRunning ? (
-              <button
-                onClick={() => setIsRunning(true)}
-                className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
-              >
-                Start
-              </button>
-            ) : (
-              <button
-                onClick={() => setIsRunning(false)}
-                className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
-              >
-                Pause
-              </button>
-            )}
-            <button
-              onClick={() => {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
-                setIsRunning(false);
-
-                let nextMode: Mode;
-                let nextSessions = completedSessions;
-
-                if (mode === "pomodoro") {
-                  nextSessions += 1;
-                  setCompletedSessions(nextSessions);
-                  nextMode = nextSessions % 4 === 0 ? "long" : "short";
-                } else {
-                  nextMode = "pomodoro";
-                }
-
-                startSession(nextMode);
-              }}
-              className="border border-white px-6 py-3 rounded uppercase font-semibold tracking-wide cursor-pointer hover:bg-white hover:text-black transition"
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
