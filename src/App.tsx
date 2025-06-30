@@ -29,6 +29,19 @@ export default function App() {
   const countdownInterval = useRef<number | null>(null);
   const hasStartedRef = useRef(false);
 
+    // 🔊 Sound functions
+ const playClick = () => {
+  const audio = new Audio(`${import.meta.env.BASE_URL}click.wav`);
+  audio.volume = 0.3;
+  audio.play().catch((e) => console.warn("Click sound error:", e));
+};
+
+const playNotification = () => {
+  const audio = new Audio(`${import.meta.env.BASE_URL}notification.wav`);
+  audio.volume = 0.4;
+  audio.play().catch((e) => console.warn("Notification sound error:", e));
+};
+
   // Reset timer when switching mode manually
   useEffect(() => {
     if (!showPrompt) {
@@ -49,6 +62,7 @@ export default function App() {
             clearInterval(intervalRef.current!);
             intervalRef.current = null;
             setIsRunning(false);
+            playNotification();
 
             // Determine next mode
             let nextMode: Mode;
@@ -270,7 +284,10 @@ export default function App() {
               {!isRunning ? (
                 <>
                   <button
-                    onClick={() => setIsRunning(true)}
+                    onClick={() => {
+                      playClick();
+                      setIsRunning(true);
+                    }}
                     className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition active:scale-95 active:shadow-inner"
                   >
                     Start
@@ -286,7 +303,10 @@ export default function App() {
               ) : (
                 <>
                   <button
-                    onClick={() => setIsRunning(false)}
+                    onClick={() => {
+                      playClick();
+                      setIsRunning(false);
+                    }}
                     className="bg-white text-black text-lg px-8 py-4 rounded uppercase font-bold tracking-wide cursor-pointer hover:bg-neutral-100 transition active:scale-95 active:shadow-inner"
                   >
                     Pause
